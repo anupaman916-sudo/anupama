@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Baby Care">
+<title>Baby Care Tracker</title>
+<style>
+:root{--bg:#f3f8f6;--card:#fff;--ink:#1d2b2a;--mute:#66807c;--accent:#2f8f83;--accent-ink:#fff;--soft:#dff1ed;--warn:#e08a3c;--line:#d5e5e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1c1b;--card:#172827;--ink:#e6f2ef;--mute:#8fb0aa;--accent:#4fc2b3;--accent-ink:#06201d;--soft:#1f3a37;--warn:#f0a35e;--line:#2a4542}}
+:root[data-theme="dark"]{--bg:#0f1c1b;--card:#172827;--ink:#e6f2ef;--mute:#8fb0aa;--accent:#4fc2b3;--accent-ink:#06201d;--soft:#1f3a37;--warn:#f0a35e;--line:#2a4542}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Noto Sans Sinhala","Iskoola Pota",sans-serif;padding-bottom:84px}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:.2rem 0 .1rem}h2{font-size:1.05rem;margin:1.2rem 0 .6rem}
+.mute{color:var(--mute);font-size:.85rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--soft);border-radius:14px;padding:12px}.metric b{display:block;font-size:1.3rem}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row .g{flex:1;min-width:0}.ico{font-size:1.4rem;width:2rem;text-align:center}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer}
+.btn.alt{background:var(--soft);color:var(--ink)}.btn.bad{background:transparent;color:#c0392b;border:1px solid #c0392b}
+.btn.full{width:100%;margin-top:8px}.btns{display:flex;gap:8px;flex-wrap:wrap}.btns .btn{flex:1}
+label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex:1;background:none;border:0;padding:6px 2px;font-size:.7rem;color:var(--mute);cursor:pointer}
+nav button span{display:block;font-size:1.3rem}nav button.on{color:var(--accent);font-weight:700}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{background:var(--card);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:20px 20px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;background:var(--soft);font-size:.8rem}
+.alert{background:var(--warn);color:#201200;border-radius:14px;padding:12px;margin:10px 0;font-weight:600}
+.x{background:none;border:0;color:var(--mute);font-size:1.2rem;cursor:pointer}
+textarea{min-height:90px;font-size:.8rem}
+svg text{fill:var(--mute);font-size:10px}
+@media print{nav,.noprint{display:none!important}body{background:#fff;color:#000}.card{border-color:#999}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+const KINDS=[['growth','⚖️'],['tooth','🦷'],['food','🍼'],['sleep','🌙'],['vaccine','💉'],['medicine','💊'],['milestone','⭐'],['health','🩺']];
+const T={
+en:{app:'Baby Growth & Care Tracker',hi:'Good day, Amma! ❤️',home:'Home',care:'Care',remind:'Reminders',report:'Report',settings:'Settings',addChild:'Add child',name:'Name',dob:'Date of birth',sex:'Sex',girl:'Girl',boy:'Boy',save:'Save',cancel:'Cancel',weight:'Weight (kg)',height:'Height (cm)',age:'Age',months:'months',date:'Date',notes:'Notes',title:'Title / details',addRec:'Add record',noRec:'No records yet.',noChild:'Add your first child to start.',latest:'Latest entry',bmiNote:'BMI for children needs age- and sex-specific growth charts. This app only records numbers and does not diagnose.',rTitle:'Reminder title',when:'Date and time',daily:'Repeat every day',addRem:'New reminder',noRem:'No reminders.',upcoming:'Upcoming reminders',backup:'Backup',copy:'Copy backup',restore:'Restore from pasted backup',copied:'Backup copied. Paste it into Notes or Messages to keep it safe.',restored:'Data restored.',bad:'That backup text is not valid.',wipe:'Delete all data',sure:'Delete all children, records and reminders?',print:'Save as PDF / Print',lang:'Language',choose:'Child',trend:'Weight trend (kg)',notif:'Enable notifications',due:'Reminder',localNote:'Data stays on this phone in this browser. Keep a backup before clearing Safari data or changing phones.',remNote:'Reminders alert you while the app is open. For alerts when it is closed, also add them to the iPhone Reminders app.',del:'Delete',kind:{growth:'Growth',tooth:'Teeth',food:'Food',sleep:'Sleep',vaccine:'Vaccine',medicine:'Medicine',milestone:'Milestone',health:'Health'},disc:'This report is a record-keeping aid, not a medical diagnosis.'},
+si:{app:'දරුවාගේ වර්ධන හා සත්කාර සටහන',hi:'ආයුබෝවන් අම්මා! ❤️',home:'මුල් පිටුව',care:'සත්කාර',remind:'මතක් කිරීම්',report:'වාර්තා',settings:'සැකසුම්',addChild:'දරුවෙක් එක් කරන්න',name:'නම',dob:'උපන් දිනය',sex:'ලිංගය',girl:'ගැහැණු',boy:'පිරිමි',save:'සුරකින්න',cancel:'අවලංගු',weight:'බර (kg)',height:'උස (cm)',age:'වයස',months:'මාස',date:'දිනය',notes:'සටහන්',title:'විස්තරය',addRec:'සටහනක් එක් කරන්න',noRec:'තවම සටහන් නැත.',noChild:'ආරම්භ කිරීමට පළමු දරුවා එක් කරන්න.',latest:'අවසන් සටහන',bmiNote:'දරුවන්ගේ BMI අගය වයස හා ලිංගය අනුව වර්ධන ප්‍රස්තාර සමඟ බැලිය යුතුය. මෙම යෙදුම රෝග නිර්ණය නොකරයි.',rTitle:'මතක් කිරීමේ මාතෘකාව',when:'දිනය සහ වේලාව',daily:'දිනපතා නැවත',addRem:'නව මතක් කිරීමක්',noRem:'මතක් කිරීම් නැත.',upcoming:'ඉදිරි මතක් කිරීම්',backup:'උපස්ථය',copy:'උපස්ථය පිටපත් කරන්න',restore:'ඇලවූ උපස්ථයෙන් ප්‍රතිෂ්ඨාපනය',copied:'උපස්ථය පිටපත් විය. Notes හෝ Messages වල ඇලවා තබාගන්න.',restored:'දත්ත ප්‍රතිෂ්ඨාපනය විය.',bad:'එම උපස්ථ පෙළ වලංගු නැත.',wipe:'සියලු දත්ත මකන්න',sure:'සියලු දරුවන්, සටහන් සහ මතක් කිරීම් මකන්නද?',print:'PDF ලෙස සුරකින්න / මුද්‍රණය',lang:'භාෂාව',choose:'දරුවා',trend:'බර වෙනස (kg)',notif:'දැනුම්දීම් සක්‍රීය කරන්න',due:'මතක් කිරීම',del:'මකන්න',kind:{growth:'බර / උස',tooth:'දත්',food:'ආහාර',sleep:'නින්ද',vaccine:'එන්නත්',medicine:'ඖෂධ',milestone:'සන්ධිස්ථාන',health:'සෞඛ්‍යය'},localNote:'දත්ත ගබඩා වන්නේ මෙම දුරකථනයේ මෙම බ්‍රවුසරයේය. Safari දත්ත මකන්න හෝ දුරකථනය මාරු කරන්න පෙර උපස්ථයක් තබාගන්න.',remNote:'යෙදුම විවෘතව ඇති විට පමණක් මතක් කිරීම් ක්‍රියා කරයි. වසා ඇති විටත් අවශ්‍ය නම් iPhone Reminders හි ද එක් කරන්න.',disc:'මෙම වාර්තාව සටහන් තබා ගැනීමට පමණි, වෛද්‍ය රෝග නිර්ණයක් නොවේ.'}};
+let D={babies:[],reminders:[],sel:null,lang:'en'},tab='home',sheet=null,alertMsg=null;
+try{const s=localStorage.getItem('bct');if(s)D=Object.assign(D,JSON.parse(s))}catch(e){}
+const save=()=>{try{localStorage.setItem('bct',JSON.stringify(D))}catch(e){}};
+const t=k=>(T[D.lang][k]??T.en[k]);const kn=k=>T[D.lang].kind[k];
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const baby=()=>D.babies.find(b=>b.id===D.sel)||D.babies[0];
+const today=()=>new Date().toISOString().slice(0,10);
+const fd=s=>new Date(s).toLocaleDateString(D.lang==='si'?'si-LK':'en-GB',{day:'numeric',month:'short',year:'numeric'});
+const fdt=s=>new Date(s).toLocaleString(D.lang==='si'?'si-LK':'en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const ageM=b=>{const a=new Date(b.dob),n=new Date();let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth();if(n.getDate()<a.getDate())m--;return Math.max(0,m)};
+const $=id=>document.getElementById(id).value;
+
+function render(){
+ document.documentElement.lang=D.lang==='si'?'si':'en';
+ const tabs=[['home','🏠'],['care','💗'],['remind','🔔'],['report','📄'],['settings','⚙️']];
+ nav.innerHTML=tabs.map(([k,i])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span>${i}</span>${t(k)}</button>`).join('');
+ app.innerHTML=({home,care,remind,report,settings}[tab])()+(sheet?sheetHTML():'');
+}
+const go=k=>{tab=k;sheet=null;render();scrollTo(0,0)};
+const open=s=>{sheet=s;render()};const closeSheet=()=>{sheet=null;render()};
+
+function home(){
+ const b=baby();
+ let h=`<h1>${t('hi')}</h1><div class="mute">${t('app')}</div>`;
+ if(alertMsg)h+=`<div class="alert" onclick="alertMsg=null;render()">🔔 ${esc(alertMsg)}</div>`;
+ if(!b)return h+`<div class="card"><p>${t('noChild')}</p><button class="btn full" onclick="open('baby')">${t('addChild')}</button></div>`;
+ const g=b.records.filter(r=>r.kind==='growth').sort((x,y)=>x.date.localeCompare(y.date));const l=g[g.length-1];
+ const lw=[...g].reverse().find(r=>r.w),lh=[...g].reverse().find(r=>r.h);
+ const bmi=lw&&lh?(lw.w/Math.pow(lh.h/100,2)).toFixed(1):'—';
+ h+=`<h2>${t('choose')}</h2><select onchange="D.sel=this.value;save();render()">${D.babies.map(x=>`<option value="${x.id}" ${x.id===b.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select>
+ <button class="btn alt full" onclick="open('baby')">＋ ${t('addChild')}</button>
+ <div class="grid" style="margin-top:12px">
+ <div class="metric"><span class="mute">${t('weight')}</span><b>${lw?lw.w:'—'}</b></div>
+ <div class="metric"><span class="mute">${t('height')}</span><b>${lh?lh.h:'—'}</b></div>
+ <div class="metric"><span class="mute">${t('age')}</span><b>${ageM(b)} ${t('months')}</b></div>
+ <div class="metric"><span class="mute">BMI</span><b>${bmi}</b></div></div>
+ ${l?`<p class="mute">${t('latest')}: ${fd(l.date)}</p>`:''}
+ ${chart(g)}<p class="mute">${t('bmiNote')}</p>
+ <div class="btns"><button class="btn" onclick="open('rec')">＋ ${t('addRec')}</button><button class="btn alt" onclick="open('rem')">🔔 ${t('addRem')}</button></div>
+ <h2>${t('upcoming')}</h2>`;
+ const up=D.reminders.filter(r=>r.baby===b.id&&!r.done).sort((x,y)=>x.when.localeCompare(y.when)).slice(0,3);
+ h+=up.length?`<div class="card">${up.map(r=>`<div class="row"><span class="ico">🔔</span><div class="g"><b>${esc(r.title)}</b><div class="mute">${fdt(r.when)}</div></div></div>`).join('')}</div>`:`<p class="mute">${t('noRem')}</p>`;
+ return h;
+}
+function chart(g){
+ const p=g.filter(r=>r.w);if(p.length<2)return '';
+ const W=320,H=110,ws=p.map(r=>r.w),mn=Math.min(...ws),mx=Math.max(...ws),sp=(mx-mn)||1;
+ const pts=p.map((r,i)=>[10+i*(W-20)/(p.length-1),H-22-(r.w-mn)/sp*(H-44)]);
+ return `<div class="card"><div class="mute">${t('trend')}</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${t('trend')}"><polyline fill="none" stroke="var(--accent)" stroke-width="2.5" points="${pts.map(q=>q.join(',')).join(' ')}"/>${pts.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="3.5" fill="var(--accent)"/><text x="${q[0]}" y="${q[1]-8}" text-anchor="middle">${p[i].w}</text>`).join('')}</svg></div>`;
+}
+function care(){
+ const b=baby();let h=`<h1>${t('care')}</h1>`;
+ if(!b)return h+`<p>${t('noChild')}</p>`;
+ h+=`<button class="btn full" onclick="open('rec')">＋ ${t('addRec')}</button>`;
+ const rs=[...b.records].sort((x,y)=>y.date.localeCompare(x.date));
+ h+=rs.length?`<div class="card">${rs.map(r=>`<div class="row"><span class="ico">${KINDS.find(k=>k[0]===r.kind)[1]}</span><div class="g"><b>${esc(r.title)}</b><div class="mute">${kn(r.kind)} · ${fd(r.date)}${r.w?' · '+r.w+' kg':''}${r.h?' · '+r.h+' cm':''}</div>${r.notes?`<div style="font-size:.85rem">${esc(r.notes)}</div>`:''}</div><button class="x" aria-label="${t('del')}" onclick="delRec('${r.id}')">✕</button></div>`).join('')}</div>`:`<p class="mute">${t('noRec')}</p>`;
+ return h;
+}
+function remind(){
+ let h=`<h1>${t('remind')}</h1><button class="btn full" onclick="open('rem')">＋ ${t('addRem')}</button><p class="mute">${t('remNote')}</p>`;
+ if(window.Notification&&Notification.permission==='default')h+=`<button class="btn alt full" onclick="Notification.requestPermission().then(render)">${t('notif')}</button>`;
+ const rs=[...D.reminders].sort((x,y)=>x.when.localeCompare(y.when));
+ h+=rs.length?`<div class="card">${rs.map(r=>`<div class="row"><button class="x" onclick="tog('${r.id}')">${r.done?'✅':'⬜'}</button><div class="g"><b style="${r.done?'text-decoration:line-through':''}">${esc(r.title)}</b><div class="mute">${fdt(r.when)}${r.repeat?' 🔁':''} · ${esc((D.babies.find(b=>b.id===r.baby)||{}).name||'')}</div></div><button class="x" aria-label="${t('del')}" onclick="delRem('${r.id}')">✕</button></div>`).join('')}</div>`:`<p class="mute">${t('noRem')}</p>`;
+ return h;
+}
+function report(){
+ const b=baby();if(!b)return `<h1>${t('report')}</h1><p>${t('noChild')}</p>`;
+ const rs=[...b.records].sort((x,y)=>x.date.localeCompare(y.date));
+ return `<h1>${t('app')}</h1><div class="card"><b>${esc(b.name)}</b><div class="mute">${t('dob')}: ${fd(b.dob)} · ${t('sex')}: ${esc(b.sex==='Girl'?t('girl'):t('boy'))} · ${ageM(b)} ${t('months')}</div></div>
+ ${chart(rs.filter(r=>r.kind==='growth').sort((x,y)=>x.date.localeCompare(y.date)))}
+ <div class="card">${rs.map(r=>`<div class="row"><div class="g"><b>${esc(r.title)}</b><div class="mute">${kn(r.kind)} · ${fd(r.date)}${r.w?' · '+r.w+' kg':''}${r.h?' · '+r.h+' cm':''}${r.notes?' · '+esc(r.notes):''}</div></div></div>`).join('')||t('noRec')}</div>
+ <p class="mute">${t('disc')}</p><button class="btn full noprint" onclick="window.print()">📄 ${t('print')}</button>`;
+}
+function settings(){
+ return `<h1>${t('settings')}</h1><div class="card"><label>${t('lang')} / භාෂාව</label><select onchange="D.lang=this.value;save();render()"><option value="en" ${D.lang==='en'?'selected':''}>English</option><option value="si" ${D.lang==='si'?'selected':''}>සිංහල</option></select></div>
+ <div class="card"><b>${t('backup')}</b><p class="mute">${t('localNote')}</p><button class="btn full" onclick="copyBk()">${t('copy')}</button>
+ <label>${t('restore')}</label><textarea id="bk"></textarea><button class="btn alt full" onclick="restore()">${t('restore')}</button></div>
+ <button class="btn bad full" onclick="if(confirm(t('sure'))){D={babies:[],reminders:[],sel:null,lang:D.lang};save();render()}">🗑 ${t('wipe')}</button>`;
+}
+function sheetHTML(){
+ const head=`<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">`,tail=`</h2><button class="x" onclick="closeSheet()" aria-label="${t('cancel')}">✕</button></div>`;
+ let c='';
+ if(sheet==='baby')c=head+t('addChild')+tail+`<label>${t('name')}</label><input id="f1"><label>${t('dob')}</label><input id="f2" type="date" max="${today()}" value="${today()}"><label>${t('sex')}</label><select id="f3"><option value="Girl">${t('girl')}</option><option value="Boy">${t('boy')}</option></select><button class="btn full" onclick="addBaby()">${t('save')}</button>`;
+ if(sheet==='rec')c=head+t('addRec')+tail+`<label>${t('care')}</label><select id="f1" onchange="document.getElementById('gw').style.display=this.value==='growth'?'block':'none'">${KINDS.map(k=>`<option value="${k[0]}">${k[1]} ${kn(k[0])}</option>`).join('')}</select><label>${t('date')}</label><input id="f2" type="date" value="${today()}"><div id="gw"><label>${t('weight')}</label><input id="f3" inputmode="decimal"><label>${t('height')}</label><input id="f4" inputmode="decimal"></div><label>${t('title')}</label><input id="f5"><label>${t('notes')}</label><input id="f6"><button class="btn full" onclick="addRec()">${t('save')}</button>`;
+ if(sheet==='rem'){const d=new Date(Date.now()+864e5-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
+  c=head+t('addRem')+tail+`<label>${t('choose')}</label><select id="f0">${D.babies.map(b=>`<option value="${b.id}" ${b.id===(baby()||{}).id?'selected':''}>${esc(b.name)}</option>`).join('')}</select><label>${t('rTitle')}</label><input id="f1"><label>${t('when')}</label><input id="f2" type="datetime-local" value="${d}"><label><input id="f3" type="checkbox" style="width:auto"> ${t('daily')}</label><button class="btn full" onclick="addRem()">${t('save')}</button>`;}
+ return `<div class="sheet" onclick="if(event.target===this)closeSheet()"><div>${c}</div></div>`;
+}
+function addBaby(){const n=$('f1').trim();if(!n)return;const b={id:uid(),name:n,dob:$('f2'),sex:$('f3'),records:[]};D.babies.push(b);D.sel=b.id;save();closeSheet()}
+function addRec(){const b=baby();if(!b)return;const k=$('f1'),num=v=>{const x=parseFloat(String(v).replace(',','.'));return isNaN(x)?null:x};
+ const w=k==='growth'?num($('f3')):null,h=k==='growth'?num($('f4')):null;if(k==='growth'&&!w&&!h)return;
+ b.records.push({id:uid(),kind:k,date:$('f2'),title:$('f5').trim()||(k==='growth'?t('kind').growth:kn(k)),notes:$('f6').trim(),w,h});save();closeSheet()}
+function delRec(id){const b=baby();b.records=b.records.filter(r=>r.id!==id);save();render()}
+function addRem(){const ti=$('f1').trim();if(!ti||!$('f2'))return;D.reminders.push({id:uid(),baby:$('f0'),title:ti,when:$('f2'),repeat:document.getElementById('f3').checked,done:false});save();
+ if(window.Notification&&Notification.permission==='default')Notification.requestPermission();closeSheet()}
+function tog(id){const r=D.reminders.find(x=>x.id===id);r.done=!r.done;save();render()}
+function delRem(id){D.reminders=D.reminders.filter(r=>r.id!==id);save();render()}
+function copyBk(){const s=JSON.stringify(D);const ok=()=>alert(t('copied'));
+ if(navigator.clipboard)navigator.clipboard.writeText(s).then(ok,()=>{document.getElementById('bk').value=s});else document.getElementById('bk').value=s}
+function restore(){try{const d=JSON.parse($('bk'));if(!Array.isArray(d.babies))throw 0;D=Object.assign({babies:[],reminders:[],sel:null,lang:'en'},d);save();alert(t('restored'));render()}catch(e){alert(t('bad'))}}
+function tick(){const now=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);let hit=false;
+ D.reminders.forEach(r=>{if(!r.done&&r.when<=now){alertMsg=r.title;hit=true;
+  try{if(window.Notification&&Notification.permission==='granted')new Notification(t('due'),{body:r.title})}catch(e){}
+  if(r.repeat){const d=new Date(r.when);do{d.setDate(d.getDate()+1)}while(new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16)<=now);r.when=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16)}else r.done=true}});
+ if(hit){save();if(!sheet)render()}}
+setInterval(tick,30000);render();tick();
+</script>
+</body>
+</html>
